@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修士論文カウントダウン＆おみくじ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e3f2fd, #90caf9);
+            color: #333;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .countdown {
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            color: #1565c0;
+        }
+        #fortune {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            border: 2px solid #1565c0;
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+        }
+        #fortune-result {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>修士論文カウントダウン＆おみくじ</h1>
+
+    <div id="tokyo-countdown" class="countdown"></div>
+    <div id="kyushu-countdown" class="countdown"></div>
+
+    <button id="fortune">今日の運勢を占う</button>
+    <div id="fortune-result"></div>
+
+    <script>
+        function updateCountdown() {
+            const now = new Date();
+
+            const tokyoDeadline = new Date("2025-01-09T16:00:00+09:00");
+            const kyushuDeadline = new Date("2025-01-20T17:00:00+09:00");
+
+            const tokyoDiff = tokyoDeadline - now;
+            const kyushuDiff = kyushuDeadline - now;
+
+            document.getElementById("tokyo-countdown").innerText =
+                `東京大学大学院教育学研究科: ${formatTime(tokyoDiff)}まで`;
+
+            document.getElementById("kyushu-countdown").innerText =
+                `九州大学大学院人間環境学府教育システム専攻: ${formatTime(kyushuDiff)}まで`;
+        }
+
+        function formatTime(diff) {
+            if (diff <= 0) return "期限が過ぎました！";
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            return `${days}日 ${hours}時間 ${minutes}分 ${seconds}秒`;
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        document.getElementById("fortune").addEventListener("click", () => {
+            const fortunes = [
+                "大吉 - 素晴らしい研究成果が期待できます！",
+                "中吉 - 少し頑張れば結果が出ます！",
+                "小吉 - 地道な努力が必要です！",
+                "凶 - 注意が必要な日です...",
+                "大凶 - 今日は無理せず休むのが吉です。"
+            ];
+            const result = fortunes[Math.floor(Math.random() * fortunes.length)];
+            document.getElementById("fortune-result").innerText = result;
+        });
+    </script>
+</body>
+</html>
