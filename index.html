@@ -17,6 +17,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow-x: hidden;
         }
         h1 {
             font-size: 2rem;
@@ -25,7 +26,18 @@
         .countdown {
             margin: 1rem 0;
             font-size: 1.5rem;
-            color: #1565c0;
+        }
+        #tokyo-countdown {
+            color: #ffd600;
+            background-color: #1e88e5;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        #kyushu-countdown {
+            color: #fff;
+            background-color: #7b1fa2;
+            padding: 10px;
+            border-radius: 10px;
         }
         #fortune {
             margin-top: 2rem;
@@ -35,10 +47,26 @@
             background: #fff;
             cursor: pointer;
         }
+        #fortune:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+        }
         #fortune-result {
             margin-top: 1rem;
             font-size: 1.2rem;
             color: #d32f2f;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .countdown {
+                font-size: 1.2rem;
+            }
+            #fortune {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -62,10 +90,12 @@
             const kyushuDiff = kyushuDeadline - now;
 
             document.getElementById("tokyo-countdown").innerText =
-                `東京大学大学院教育学研究科: ${formatTime(tokyoDiff)}まで`;
+                `東京大学大学院教育学研究科:残り ${formatTime(tokyoDiff)}`+
+                `\n（2025年1月9日　16:00（日本時間））`;
 
             document.getElementById("kyushu-countdown").innerText =
-                `九州大学大学院人間環境学府教育システム専攻: ${formatTime(kyushuDiff)}まで`;
+                `九州大学大学院人間環境学府教育システム専攻:残り ${formatTime(kyushuDiff)}` +
+                `\n（2025年1月20日　17:00（日本時間））`;
         }
 
         function formatTime(diff) {
@@ -81,7 +111,10 @@
 
         setInterval(updateCountdown, 1000);
 
+        let fortuneTimeout;
         document.getElementById("fortune").addEventListener("click", () => {
+            if (fortuneTimeout) return;
+
             const fortunes = [
                 "大吉 - 素晴らしい研究成果が期待できます！",
                 "中吉 - 少し頑張れば結果が出ます！",
@@ -90,7 +123,14 @@
                 "大凶 - 今日は無理せず休むのが吉です。"
             ];
             const result = fortunes[Math.floor(Math.random() * fortunes.length)];
-            document.getElementById("fortune-result").innerText = result;
+            document.getElementById("fortune-result").innerText = result + 
+                "\n（おみくじ連打はNG！10秒お待ちください）";
+
+            document.getElementById("fortune").disabled = true;
+            fortuneTimeout = setTimeout(() => {
+                document.getElementById("fortune").disabled = false;
+                fortuneTimeout = null;
+            }, 10000);
         });
     </script>
 </body>
