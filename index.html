@@ -17,6 +17,8 @@
     <button id="fortune">今日の運勢を占う</button>
     <div id="fortune-result"></div>
 
+    <h1>残り文字数チェッカー</h1>
+
     <div id="inputs">
         <label for="remaining-characters">残りの文字数:</label>
         <input type="number" id="remaining-characters" value="20000">
@@ -26,8 +28,6 @@
         <input type="number" id="work-hours" value="4">
     </div>
 
-    
-    <h1>残り文字数チェッカー</h1>
     <select id="deadline-selector">
         <option value="tokyo" selected>東京大学基準</option>
         <option value="kyushu">九州大学基準</option>
@@ -55,11 +55,11 @@
             const kyushuDiff = kyushuDeadline - now;
 
             document.getElementById("tokyo-countdown").innerText =
-                `東京大学大学院教育学研究科:残り ${formatTime(tokyoDiff)}`+
+                `東京大学大学院教育学研究科:\n残り ${formatTime(tokyoDiff)}`+
                 `\n（2025年1月9日　16:00）`;
 
             document.getElementById("kyushu-countdown").innerText =
-                `九州大学大学院人間環境学府教育システム専攻:残り ${formatTime(kyushuDiff)}` +
+                `九州大学大学院人間環境学府教育システム専攻:\n残り ${formatTime(kyushuDiff)}` +
                 `\n（2025年1月20日　17:00）`;
 
             const selector = document.getElementById("deadline-selector").value;
@@ -71,13 +71,14 @@
         function formatTime(diff) {
             if (diff <= 0) return "期限が過ぎました！";
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const totalHours = Math.floor(diff / (1000 * 60 * 60)); // 総時間数に変換
             const minutes = Math.floor((diff / (1000 * 60)) % 60);
             const seconds = Math.floor((diff / 1000) % 60);
+            const milliseconds = diff % 1000; // ミリ秒を計算
 
-            return `${days * 24 + hours}時間 ${minutes}分 ${seconds}秒`;
+            return `${totalHours}時間 ${minutes}分 ${seconds}秒 ${milliseconds}ミリ秒`;
         }
+
 
         function calculateWritingSpeed(diff) {
             const remainingCharacters = parseInt(document.getElementById("remaining-characters").value);
