@@ -3,81 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>修士論文カウントダウン＆おみくじ</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #e3f2fd, #90caf9);
-            color: #333;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow-x: hidden;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        .countdown {
-            margin: 1rem 0;
-            font-size: 1.5rem;
-        }
-        #tokyo-countdown {
-            color: #ffd600;
-            background-color: #1e88e5;
-            padding: 10px;
-            border-radius: 10px;
-        }
-        #kyushu-countdown {
-            color: #fff;
-            background-color: #7b1fa2;
-            padding: 10px;
-            border-radius: 10px;
-        }
-        #fortune {
-            margin-top: 2rem;
-            padding: 1rem 2rem;
-            border: 2px solid #1565c0;
-            border-radius: 10px;
-            background: #fff;
-            cursor: pointer;
-        }
-        #fortune:disabled {
-            background: #ddd;
-            cursor: not-allowed;
-        }
-        #fortune-result {
-            margin-top: 1rem;
-            font-size: 1.2rem;
-            color: #d32f2f;
-        }
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-            .countdown {
-                font-size: 1.2rem;
-            }
-            #fortune {
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="./style.css">
+    <title>ファイト！</title>
+
 </head>
 <body>
-    <h1>修士論文カウントダウン＆おみくじ</h1>
+    <h1>修士論文カウントダウン＆おみくじ＆残文字数計算機</h1>
+    <p>（注）本カウントダウンはすべて日本時間（Japan Standard Time）を基準としています。</p>
 
     <div id="tokyo-countdown" class="countdown"></div>
     <div id="kyushu-countdown" class="countdown"></div>
 
+    <div id="inputs">
+        <label for="remaining-characters">残りの文字数:</label>
+        <input type="number" id="remaining-characters" value="20000">
+        <label for="sleep-hours">睡眠時間（時間）:</label>
+        <input type="number" id="sleep-hours" value="6">
+        <label for="work-hours">バイト等の時間（時間）:</label>
+        <input type="number" id="work-hours" value="4">
+    </div>
+
     <button id="fortune">今日の運勢を占う</button>
     <div id="fortune-result"></div>
+
+    <h1>残り文字数チェッカー</h1>
+    <select id="deadline-selector">
+        <option value="tokyo" selected>東京大学基準</option>
+        <option value="kyushu">九州大学基準</option>
+    </select>
+    
+    
+    <div id="writing-speed">
+        <p>単位時間あたりの必要執筆文字数:</p>
+        <p>24時間あたり: <span id="speed-24"></span>文字</p>
+        <p>6時間あたり: <span id="speed-6"></span>文字</p>
+        <p>1時間あたり: <span id="speed-1"></span>文字</p>
+        <p>30分あたり: <span id="speed-0_5"></span>文字</p>
+        <p>1分あたり: <span id="speed-0_016"></span>文字</p>
+        <p>30秒あたり: <span id="speed-0_008"></span>文字</p>
+    </div>
 
     <script>
         function updateCountdown() {
@@ -91,11 +55,16 @@
 
             document.getElementById("tokyo-countdown").innerText =
                 `東京大学大学院教育学研究科:残り ${formatTime(tokyoDiff)}`+
-                `\n（2025年1月9日　16:00（日本時間））`;
+                `\n（2025年1月9日　16:00）`;
 
             document.getElementById("kyushu-countdown").innerText =
                 `九州大学大学院人間環境学府教育システム専攻:残り ${formatTime(kyushuDiff)}` +
-                `\n（2025年1月20日　17:00（日本時間））`;
+                `\n（2025年1月20日　17:00）`;
+
+            const selector = document.getElementById("deadline-selector").value;
+            const deadline = selector === "tokyo" ? tokyoDiff : kyushuDiff;
+
+            calculateWritingSpeed(deadline);
         }
 
         function formatTime(diff) {
@@ -106,10 +75,48 @@
             const minutes = Math.floor((diff / (1000 * 60)) % 60);
             const seconds = Math.floor((diff / 1000) % 60);
 
-            return `${days}日 ${hours}時間 ${minutes}分 ${seconds}秒`;
+            return `${days * 24 + hours}時間 ${minutes}分 ${seconds}秒`;
         }
 
-        setInterval(updateCountdown, 1000);
+        function calculateWritingSpeed(diff) {
+            const remainingCharacters = parseInt(document.getElementById("remaining-characters").value);
+            const sleepHours = parseInt(document.getElementById("sleep-hours").value);
+            const workHours = parseInt(document.getElementById("work-hours").value);
+
+            if (diff <= 0 || isNaN(remainingCharacters) || isNaN(sleepHours) || isNaN(workHours)) {
+                document.getElementById("speed-24").innerText = "-";
+                document.getElementById("speed-6").innerText = "-";
+                document.getElementById("speed-1").innerText = "-";
+                document.getElementById("speed-0_5").innerText = "-";
+                document.getElementById("speed-0_016").innerText = "-";
+                document.getElementById("speed-0_008").innerText = "-";
+                return;
+            }
+
+            const totalHours = diff / (1000 * 60 * 60);
+            const availableHours = totalHours - sleepHours - workHours;
+
+            if (availableHours <= 0) {
+                document.getElementById("speed-24").innerText = "-";
+                document.getElementById("speed-6").innerText = "-";
+                document.getElementById("speed-1").innerText = "-";
+                document.getElementById("speed-0_5").innerText = "-";
+                document.getElementById("speed-0_016").innerText = "-";
+                document.getElementById("speed-0_008").innerText = "-";
+                return;
+            }
+
+            const speedPerHour = remainingCharacters / availableHours;
+
+            document.getElementById("speed-24").innerText = (speedPerHour * 24).toFixed(2);
+            document.getElementById("speed-6").innerText = (speedPerHour * 6).toFixed(2);
+            document.getElementById("speed-1").innerText = speedPerHour.toFixed(2);
+            document.getElementById("speed-0_5").innerText = (speedPerHour / 2).toFixed(2);
+            document.getElementById("speed-0_016").innerText = (speedPerHour / 60).toFixed(2);
+            document.getElementById("speed-0_008").innerText = (speedPerHour / 120).toFixed(2);
+        }
+
+        setInterval(updateCountdown, 100);
 
         let fortuneTimeout;
         document.getElementById("fortune").addEventListener("click", () => {
@@ -120,7 +127,7 @@
                 "中吉 - 少し頑張れば結果が出ます！",
                 "小吉 - 地道な努力が必要です！",
                 "凶 - 注意が必要な日です...",
-                "大凶 - 今日は無理せず休むのが吉です。"
+                "大凶 - 大凶 - 今日は無理せず休みたいですね。\n感染症、交通事故、食あたりには気をつけましょう。"
             ];
             const result = fortunes[Math.floor(Math.random() * fortunes.length)];
             document.getElementById("fortune-result").innerText = result + 
