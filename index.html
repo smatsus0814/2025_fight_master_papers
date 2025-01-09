@@ -8,16 +8,22 @@
 
 </head>
 <body>
-    <h1>修士論文カウントダウン＆おみくじ＆残文字数計算機</h1>
+    <h1>超甘デジ！修了・合格占い</h1>
     <img id="floating-image" src="fight_miura.png" alt="浮揚する画像">
 
     <p>（注）本カウントダウンはすべて日本時間（Japan Standard Time）を基準としています。</p>
 
-    <div id="tokyo-countdown" class="countdown"></div>
+    
     <div id="kyushu-countdown" class="countdown"></div>
 
     <button id="fortune">今日の運勢を占う</button>
+    <div id="slot-container">
+        <div id="slot1" class="slot"></div>
+        <div id="slot2" class="slot"></div>
+        <div id="slot3" class="slot"></div>
+    </div>
     <div id="fortune-result"></div>
+    
 
     <h1>残り文字数チェッカー</h1>
 
@@ -31,7 +37,6 @@
     </div>
 
     <select id="deadline-selector">
-        <option value="tokyo" selected>東京大学基準</option>
         <option value="kyushu">九州大学基準</option>
     </select>
     
@@ -50,22 +55,17 @@
         function updateCountdown() {
             const now = new Date();
 
-            const tokyoDeadline = new Date("2025-01-09T16:00:00+09:00");
             const kyushuDeadline = new Date("2025-01-20T17:00:00+09:00");
 
-            const tokyoDiff = tokyoDeadline - now;
             const kyushuDiff = kyushuDeadline - now;
 
-            document.getElementById("tokyo-countdown").innerText =
-                `東京大学大学院教育学研究科:\n残り ${formatTime(tokyoDiff)}`+
-                `\n（2025年1月9日　16:00）`;
 
             document.getElementById("kyushu-countdown").innerText =
                 `九州大学大学院人間環境学府教育システム専攻:\n残り ${formatTime(kyushuDiff)}` +
                 `\n（2025年1月20日　17:00）`;
 
             const selector = document.getElementById("deadline-selector").value;
-            const deadline = selector === "tokyo" ? tokyoDiff : kyushuDiff;
+            const deadline = kyushuDiff;
 
             calculateWritingSpeed(deadline);
         }
@@ -122,102 +122,63 @@
 
         setInterval(updateCountdown, 100);
 
-        let fortuneTimeout;
-        document.getElementById("fortune").addEventListener("click", () => {
-            if (fortuneTimeout) return;
 
-            const fortunes = [
-                "大吉 - 素晴らしい研究成果が期待できます！",
-                "中吉 - 少し頑張れば結果が出ます！",
-                "小吉 - 地道な努力が必要です！",
-                "凶 - 注意が必要な日です...",
-                "大凶 - 大凶 - 今日は無理せず休みたいですね。\n感染症、交通事故、食あたりには気をつけましょう。"
-            ];
-            const result = fortunes[Math.floor(Math.random() * fortunes.length)];
-            document.getElementById("fortune-result").innerText = result + 
-                "\n（おみくじ連打はNG！10秒お待ちください）";
-
-            document.getElementById("fortune").disabled = true;
-            fortuneTimeout = setTimeout(() => {
-                document.getElementById("fortune").disabled = false;
-                fortuneTimeout = null;
-            }, 10000);
-        });
     </script>
 
     <script>
-        // 広告要素の作成
-        const adOverlay = document.createElement('div');
-        adOverlay.style.position = 'fixed';
-        adOverlay.style.top = '0';
-        adOverlay.style.left = '0';
-        adOverlay.style.width = '100%';
-        adOverlay.style.height = '100%';
-        adOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
-        adOverlay.style.zIndex = '9999';
-        adOverlay.style.display = 'flex';
-        adOverlay.style.alignItems = 'center';
-        adOverlay.style.justifyContent = 'center';
+        const images = [
+            "fight_miura.png",
+            "chi.jpg",
+            "inmu.jpeg"
+        ];
 
-        // PNG画像を配置
-        const adImage = document.createElement('img');
-        adImage.src = './fight_miura.png'; // ここに表示したいPNG画像のパスを入力
-        adImage.style.width = '300px'; // 画像サイズを調整
-        adImage.style.height = 'auto';
-        adImage.style.position = 'relative';
-        adOverlay.appendChild(adImage);
+        let fortuneTimeout = null;
 
-        // 閉じるボタン
-        const closeButton = document.createElement('button');
-        closeButton.innerText = '✖';
-        closeButton.style.position = 'absolute';
-        closeButton.style.top = '10px';
-        closeButton.style.right = '10px';
-        closeButton.style.padding = '10px';
-        closeButton.style.backgroundColor = 'white';
-        closeButton.style.color = 'black';
-        closeButton.style.border = 'none';
-        closeButton.style.cursor = 'pointer';
-        closeButton.style.zIndex = '10000'; // ボタンが最前面になるよう調整
-        adOverlay.appendChild(closeButton);
+        document.getElementById("fortune").addEventListener("click", () => {
+            if (fortuneTimeout) return; // 待機中はボタンを無効化
 
-        // 閉じるボタンをランダムに動かす
-        function moveCloseButton() {
-            const randomTop = Math.random() * 80 + '%';
-            const randomLeft = Math.random() * 80 + '%';
-            closeButton.style.top = randomTop;
-            closeButton.style.left = randomLeft;
-        }
-        setInterval(moveCloseButton, 1000);
+            const slotContainer = document.getElementById("slot-container");
+            const slots = [
+                document.getElementById("slot1"),
+                document.getElementById("slot2"),
+                document.getElementById("slot3")
+            ];
 
-        // 浮遊アニメーション
-        let adX = 0;
-        let adY = 0;
-        let xDirection = 1;
-        let yDirection = 1;
-        function floatAd() {
-            adX += xDirection * 2;
-            adY += yDirection * 2;
+            // Show the slot machine
+            slotContainer.style.display = "block";
 
-            if (adX > window.innerWidth - 300 || adX < 0) xDirection *= -1; // 幅300px基準
-            if (adY > window.innerHeight - 300 || adY < 0) yDirection *= -1;
+            let spinCount = 0;
+            const spinInterval = setInterval(() => {
+                spinCount++;
 
-            adImage.style.transform = `translate(${adX}px, ${adY}px)`;
-        }
-        setInterval(floatAd, 50);
+                // Randomly assign images to the slots during spin
+                slots.forEach(slot => {
+                    const randomImage = images[Math.floor(Math.random() * images.length)];
+                    slot.style.backgroundImage = `url(${randomImage})`;
+                });
 
-        // 広告の表示
-        document.body.appendChild(adOverlay);
+                // Stop spinning after a few iterations
+                if (spinCount >= 10) {
+                    clearInterval(spinInterval);
 
-        // 広告を閉じる
-        closeButton.addEventListener('click', () => {
-            adOverlay.remove();
-            setTimeout(() => {
-                document.body.appendChild(adOverlay); // 数秒後に広告を再び表示
-            }, 3000);
+                    // Set all slots to "fight_miura.png"
+                    slots.forEach(slot => {
+                        slot.style.backgroundImage = "url(fight_miura.png)";
+                    });
+
+                    document.getElementById("fortune-result").innerText = "大吉！三浦スロットが揃いました！今日も頑張りましょう！\n連打は10秒まってね";
+
+                    // ボタンを無効化して10秒後に再度有効化
+                    const fortuneButton = document.getElementById("fortune");
+                    fortuneButton.disabled = true;
+                    fortuneTimeout = setTimeout(() => {
+                        fortuneButton.disabled = false;
+                        fortuneTimeout = null;
+                    }, 10000);
+                }
+            }, 100);
         });
     </script>
-
 
 
 </body>
