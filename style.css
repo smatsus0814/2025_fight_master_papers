@@ -126,3 +126,18 @@ select {
         text-align: center;
     }
 }
+
+#slot-container {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+}
+.slot {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    margin: 0 10px;
+    border: 2px solid #000;
+    background-size: cover;
+    background-position: center;
+}
